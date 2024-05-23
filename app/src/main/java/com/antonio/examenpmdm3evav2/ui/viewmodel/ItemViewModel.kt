@@ -5,6 +5,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.antonio.examenpmdm3evav2.ui.model.ItemSer
+import com.antonio.examenpmdm3evav2.ui.model.getListaAuxclass
+
 import com.antonio.examenpmdm3evav2.ui.model.getListaclass
 
 class ItemViewModel:ViewModel(){
@@ -14,6 +16,12 @@ class ItemViewModel:ViewModel(){
     fun getLista():MutableList<ItemSer>{
         return  getListaclass()
     }
+
+    fun getListaAux():MutableList<ItemSer>{
+        return  getListaAuxclass()
+    }
+
+
 
     var nombre by mutableStateOf("")
         private set
@@ -28,9 +36,12 @@ class ItemViewModel:ViewModel(){
         private set
 
     var banderaFichero by mutableStateOf(true)
-    private set
+        private set
 
     var isCheckedScafold by mutableStateOf(false)
+        private set
+    var banderaIniciar by mutableStateOf(true)
+        private set
 
     fun set_nombre(nombre:String){
         this.nombre=nombre
@@ -49,6 +60,13 @@ class ItemViewModel:ViewModel(){
     }
     fun set_banderaFichero(banderaFichero:Boolean){
         this.banderaFichero=banderaFichero
+    }
+
+    fun set_banderaIniciar(banderaIniciar:Boolean){
+        this.banderaIniciar=banderaIniciar
+    }
+    fun set_isCheckedScafold(isCheckedScafold:Boolean){
+        this.isCheckedScafold=isCheckedScafold
     }
 
 

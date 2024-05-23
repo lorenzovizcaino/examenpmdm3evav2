@@ -2,6 +2,7 @@ package com.antonio.examenpmdm3evav2.ui.model
 
 import android.content.Context
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import java.io.EOFException
 import java.io.File
 import java.io.FileInputStream
@@ -13,16 +14,29 @@ import java.io.Serializable
 
 data class ItemSer(val nombre: String, val descr: String, var selecionado: Boolean) : Serializable
     var itemsSer = mutableStateListOf<ItemSer>(
-//        ItemSer("Casa", "Morada"),
-//        ItemSer("Camion", "Vehiculo"),
+
     )
         private set
 
-    val nombreArchivo="objetos.dat"
+    var itemsSerAux = mutableStateListOf<ItemSer>(
+
+    )
+        private set
+
+
+
+
+    val nombreArchivo="objeto_2.dat"
 
     fun getListaclass(): MutableList<ItemSer> {
         return itemsSer
     }
+
+    fun getListaAuxclass(): MutableList<ItemSer> {
+      return itemsSerAux
+    }
+
+
 
 
 
@@ -68,10 +82,19 @@ fun guardarItemEnFichero(context: Context,itemSer: ItemSer){
 
 }
 
-fun escribirFichero(context: Context){
+fun escribirFichero(context: Context, bandera: Boolean){
     var archivo = File(context.filesDir, nombreArchivo)
+
+
+
     val objectOutputStream = ObjectOutputStream(FileOutputStream(archivo))
+    if(!bandera){
+        itemsSer.clear()
+        itemsSer.addAll(itemsSerAux)
+        itemsSerAux.clear()
+    }
     itemsSer.forEach(){item->
+
         serializarObjeto(item, objectOutputStream)
     }
     objectOutputStream.close()

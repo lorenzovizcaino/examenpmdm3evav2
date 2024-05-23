@@ -41,6 +41,8 @@ import com.antonio.examenpmdm3evav2.ui.model.ItemSer
 import com.antonio.examenpmdm3evav2.ui.model.escribirFichero
 import com.antonio.examenpmdm3evav2.ui.model.guardarItemEnFichero
 import com.antonio.examenpmdm3evav2.ui.model.guardarListaEnFichero
+import com.antonio.examenpmdm3evav2.ui.model.leerItemArchivo
+
 import com.antonio.examenpmdm3evav2.ui.navigation.Screens
 import com.antonio.examenpmdm3evav2.ui.viewmodel.ItemViewModel
 
@@ -63,7 +65,7 @@ fun ScaffoldScreenAppFich(navController: NavController, viewModel: ItemViewModel
                 actions = {
                     Checkbox(checked = viewModel.isCheckedScafold,
                         onCheckedChange = {
-                           viewModel.isCheckedScafold = it
+                           viewModel.set_isCheckedScafold(it)
 
                             viewModel.getLista().forEach { item ->
                                 item.selecionado = viewModel.isCheckedScafold
@@ -75,18 +77,14 @@ fun ScaffoldScreenAppFich(navController: NavController, viewModel: ItemViewModel
 
                                     )
                                 )
-                                println("HOLA")
-                                viewModel.getLista().remove(item)
-                                println("HOLA2")
-                                viewModel.getLista().add(viewModel.objeto)
-                                println("HOLA3")
-                                escribirFichero(context)
-                                println("HOLA4")
 
+
+                                viewModel.getListaAux().add(viewModel.objeto)
 
                             }
 
-                            //navController.navigate(route = Screens.Menu.route)
+                            escribirFichero(context,false)
+                            navController.navigate(route = Screens.Menu.route)
 
                         })
                 }
@@ -118,8 +116,11 @@ fun ScaffoldScreenAppFich(navController: NavController, viewModel: ItemViewModel
 
 @Composable
 fun Menu(navController: NavController, viewModel: ItemViewModel) {
+    if(viewModel.banderaIniciar){
+        ScaffoldScreenAppFich(navController,viewModel)
+    }
 
-    ScaffoldScreenAppFich(navController,viewModel)
+
 }
 
 
@@ -130,7 +131,6 @@ fun AdministrarItems(navController: NavController, viewModel: ItemViewModel) {
 
     if(viewModel.banderaFichero){
         guardarListaEnFichero(context)
-        print("HOLA")
         viewModel.set_banderaFichero(false)
     }
 
@@ -218,13 +218,13 @@ fun MostrarItem(
                     viewModel.set_Objeto(ItemSer(objeto.nombre,objeto.descr,true))
                     viewModel.getLista().remove(objeto)
                     viewModel.getLista().add(viewModel.objeto)
-                    escribirFichero(context)
+                    escribirFichero(context, true)
 
                 } else {
                     viewModel.set_Objeto(ItemSer(objeto.nombre,objeto.descr,false))
                     viewModel.getLista().remove(objeto)
                     viewModel.getLista().add(viewModel.objeto)
-                    escribirFichero(context)
+                    escribirFichero(context, true)
 
                 }
 
@@ -238,7 +238,7 @@ fun MostrarItem(
 
                     viewModel.getLista().remove(objeto)
 
-                    escribirFichero(context)
+                    escribirFichero(context, true)
                 })
         }
         Column(){
@@ -251,7 +251,7 @@ fun MostrarItem(
 
                     viewModel.getLista().remove(objeto)
 
-                    escribirFichero(context)
+                    escribirFichero(context, true)
 
                     editNombre(objeto.nombre)
                     editDescr(objeto.descr)
