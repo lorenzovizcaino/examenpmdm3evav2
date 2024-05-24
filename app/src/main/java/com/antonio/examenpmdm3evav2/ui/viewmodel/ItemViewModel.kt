@@ -1,13 +1,26 @@
 package com.antonio.examenpmdm3evav2.ui.viewmodel
 
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.antonio.examenpmdm3evav2.ui.model.ItemSer
 import com.antonio.examenpmdm3evav2.ui.model.getListaAuxclass
 
 import com.antonio.examenpmdm3evav2.ui.model.getListaclass
+import com.antonio.examenpmdm3evav2.ui.model.itemsSer
+import com.antonio.examenpmdm3evav2.ui.model.itemsSerAux
+import kotlinx.coroutines.launch
+
+import java.io.EOFException
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
 
 class ItemViewModel:ViewModel(){
 
@@ -40,8 +53,10 @@ class ItemViewModel:ViewModel(){
 
     var isCheckedScafold by mutableStateOf(false)
         private set
-    var banderaIniciar by mutableStateOf(true)
+    var banderaIniciar by mutableStateOf(false)
         private set
+
+    val nombreArchivo="objeto_3.dat"
 
     fun set_nombre(nombre:String){
         this.nombre=nombre
@@ -62,12 +77,124 @@ class ItemViewModel:ViewModel(){
         this.banderaFichero=banderaFichero
     }
 
-    fun set_banderaIniciar(banderaIniciar:Boolean){
-        this.banderaIniciar=banderaIniciar
+    fun set_banderaIniciar(){
+        viewModelScope.launch {
+            banderaIniciar=!banderaIniciar
+        }
+
     }
     fun set_isCheckedScafold(isCheckedScafold:Boolean){
         this.isCheckedScafold=isCheckedScafold
     }
+
+
+
+
+
+
+
+//DESDE AQUI PARA GUARDAR EN FICHERO
+
+    fun guardarListaEnFichero(context: Context) {
+        var archivo = File(context.filesDir, nombreArchivo)
+        if(!archivo.exists()){
+            val objectOutputStream = ObjectOutputStream(FileOutputStream(archivo))
+            var contador = 0
+            itemsSer.forEach { item ->
+                //contador++
+
+                var itemSer = ItemSer(
+                    item.nombre,item.descr,item.selecionado
+                )
+
+                // Serializar objeto
+                serializarObjeto(itemSer, objectOutputStream)
+            }
+            objectOutputStream.close()
+        }
+        else{
+            leerItemArchivo(context)
+        }
+
+    }
+
+    fun guardarItemEnFichero(context: Context, itemSer: ItemSer){
+        try{
+            var archivo = File(context.filesDir, nombreArchivo)
+
+            val objectOutputStream = object : ObjectOutputStream(FileOutputStream(archivo,true)) {
+                override fun writeStreamHeader() {}  //para no sobreescribir la cabecera del archivo
+            }
+            serializarObjeto(itemSer, objectOutputStream)
+            objectOutputStream.close()
+            println("Objeto agregado correctamente al archivo.")
+        } catch (ex: IOException) {
+            println("Error al escribir el objeto en el archivo: ${ex.message}")
+        }
+
+    }
+
+    fun escribirFichero(context: Context, bandera: Boolean){
+        var archivo = File(context.filesDir, nombreArchivo)
+
+
+
+        val objectOutputStream = ObjectOutputStream(FileOutputStream(archivo))
+        if(!bandera){
+            itemsSer.clear()
+            itemsSer.addAll(itemsSerAux)
+            itemsSerAux.clear()
+        }
+        itemsSer.forEach(){ item->
+
+            serializarObjeto(item, objectOutputStream)
+        }
+        objectOutputStream.close()
+    }
+
+    fun serializarObjeto(objeto: ItemSer, objectOutputStream: ObjectOutputStream) {
+        objectOutputStream.writeObject(objeto)
+    }
+
+    fun leerItemArchivo(context: Context) {
+        var archivo = File(context.filesDir, nombreArchivo)
+        itemsSer.clear()
+        deserializarObjeto(archivo)
+        itemsSer.sortBy { it.nombre }
+
+    }
+
+    fun deserializarObjeto(archivo: File) {
+        try {
+            val objectInputStream = ObjectInputStream(FileInputStream(archivo))
+
+            while (true) {
+                try {
+                    val itemSer = objectInputStream.readObject()
+                    if (itemSer is ItemSer) {
+                        itemsSer.add(itemSer)
+
+                    } else {
+                        break;
+                    }
+
+                } catch (ex: EOFException) {
+                    break
+                }
+            }
+
+            objectInputStream.close()
+        } catch (ex: IOException) {
+            println("Error al leer el archivo: ${ex.message}")
+        } catch (ex: ClassNotFoundException) {
+            println("Clase no encontrada: ${ex.message}")
+        }
+
+
+    }
+
+//HASTA AQUI PARA GUARDAR EN FICHERO
+
 
 
 

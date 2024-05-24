@@ -8,17 +8,18 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.antonio.examenpmdm3evav2.ui.screens.Menu
 import com.antonio.examenpmdm3evav2.ui.viewmodel.ItemViewModel
+import com.antonio.examenpmdm3evav2.ui.viewmodel.LoginViewModel
 
 
 @Composable
 fun Navigation() {
     val navController = rememberNavController()
-
-    val viewModelObjeto=remember{ ItemViewModel() } //linea para recordar viewModel entre pantallas
+    val viewModelLogin=remember{LoginViewModel()}
+    val viewModelObjeto=remember{ ItemViewModel() }
     NavHost(navController, startDestination = Screens.Menu.route) {
         //pantalla principal con la navegación
         composable(route = Screens.Menu.route) {
-            Menu(navController, viewModelObjeto) }//Nombre del fichero .kt al que navegar
+            Menu(navController, viewModelObjeto, viewModelLogin) }//Nombre del fichero .kt al que navegar
 
 //        composable(route = Screens.Inicio.route) {
 //            Inicio(navController,viewModelProducto) //Nombre de la función composable a la que navegar
