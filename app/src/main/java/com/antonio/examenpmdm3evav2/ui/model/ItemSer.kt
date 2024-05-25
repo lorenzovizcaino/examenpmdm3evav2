@@ -23,17 +23,26 @@ data class ItemSer(val nombre: String, val descr: String, var selecionado: Boole
     )
         private set
 
+    var itemsSerSelecionados = mutableStateListOf<ItemSer>(
+
+    )
+     private set
 
 
 
 
 
-    fun getListaclass(): MutableList<ItemSer> {
+
+    fun getListaClass(): MutableList<ItemSer> {
         return itemsSer
     }
 
-    fun getListaAuxclass(): MutableList<ItemSer> {
+    fun getListaAuxClass(): MutableList<ItemSer> {
       return itemsSerAux
+    }
+
+    fun getListaSelecionadosClass(): MutableList<ItemSer> {
+        return itemsSerSelecionados
     }
 
 

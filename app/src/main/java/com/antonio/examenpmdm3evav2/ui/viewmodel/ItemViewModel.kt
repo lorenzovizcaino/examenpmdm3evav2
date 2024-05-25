@@ -7,9 +7,10 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.antonio.examenpmdm3evav2.ui.model.ItemSer
-import com.antonio.examenpmdm3evav2.ui.model.getListaAuxclass
+import com.antonio.examenpmdm3evav2.ui.model.getListaAuxClass
+import com.antonio.examenpmdm3evav2.ui.model.getListaSelecionadosClass
 
-import com.antonio.examenpmdm3evav2.ui.model.getListaclass
+import com.antonio.examenpmdm3evav2.ui.model.getListaClass
 import com.antonio.examenpmdm3evav2.ui.model.itemsSer
 import com.antonio.examenpmdm3evav2.ui.model.itemsSerAux
 import kotlinx.coroutines.launch
@@ -27,11 +28,15 @@ class ItemViewModel:ViewModel(){
 
 
     fun getLista():MutableList<ItemSer>{
-        return  getListaclass()
+        return  getListaClass()
     }
 
     fun getListaAux():MutableList<ItemSer>{
-        return  getListaAuxclass()
+        return  getListaAuxClass()
+    }
+
+    fun getListaSelecionados():MutableList<ItemSer>{
+        return  getListaSelecionadosClass()
     }
 
 
@@ -56,7 +61,12 @@ class ItemViewModel:ViewModel(){
     var banderaIniciar by mutableStateOf(false)
         private set
 
-    val nombreArchivo="objeto_3.dat"
+    var indiceLista by mutableStateOf(0)
+        private set
+
+
+
+    val nombreArchivo="objeto_7.dat"
 
     fun set_nombre(nombre:String){
         this.nombre=nombre
@@ -85,6 +95,10 @@ class ItemViewModel:ViewModel(){
     }
     fun set_isCheckedScafold(isCheckedScafold:Boolean){
         this.isCheckedScafold=isCheckedScafold
+    }
+
+    fun set_IndiceLista(indiceLista:Int){
+        this.indiceLista=indiceLista
     }
 
 

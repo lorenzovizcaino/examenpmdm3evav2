@@ -20,6 +20,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Visibility
@@ -81,64 +82,12 @@ fun ScaffoldScreenAppFich(
     val context = LocalContext.current
     Scaffold(
         topBar = {
-            TopAppBar(
-                colors = TopAppBarDefaults.smallTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.primary,
-                ),
-                navigationIcon = {
-                    IconButton(onClick = {
-                        viewModelLogin.set_Email("")
-                        viewModelLogin.set_Password("")
-                        viewModelLogin.restablecerContadorIntentos()
-                        viewModel.set_banderaIniciar()
-                    }) {
-                        Icon(imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = "Ir hacia atras",
+            MyTopBar(navController, viewModel , viewModelLogin)
 
-                        )
-                    }
-
-
-
-                },
-                title = { Text(text = viewModelLogin.email) },
-                actions = {
-                    Checkbox(checked = viewModel.isCheckedScafold,
-                        onCheckedChange = {
-                           viewModel.set_isCheckedScafold(it)
-
-                            viewModel.getLista().forEach { item ->
-                                item.selecionado = viewModel.isCheckedScafold
-                                viewModel.set_Objeto(
-                                    ItemSer(
-                                        item.nombre,
-                                        item.descr,
-                                        item.selecionado,
-
-                                    )
-                                )
-
-
-                                viewModel.getListaAux().add(viewModel.objeto)
-
-                            }
-
-                            viewModel.escribirFichero(context,false)
-                            navController.navigate(route = Screens.Menu.route)
-
-                        })
-                }
-                )
         },
         bottomBar = {
-            BottomAppBar(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.primary,
-            ) {
-                Text(text = "Listado-numEltos-")
-                Text(text = viewModel.getLista().size.toString())
-            }
+            MyBottomBar(viewModel)
+
         }
     ) {// (1)
         Column(
@@ -155,6 +104,7 @@ fun ScaffoldScreenAppFich(
 }
 
 
+
 @Composable
 fun Menu(navController: NavController, viewModelItem: ItemViewModel, viewModelLogin: LoginViewModel) {
     if(viewModelItem.banderaIniciar){
@@ -166,6 +116,143 @@ fun Menu(navController: NavController, viewModelItem: ItemViewModel, viewModelLo
 
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MyTopBar(navController: NavController, viewModel: ItemViewModel, viewModelLogin: LoginViewModel) {
+    val context = LocalContext.current
+    var showDialog by remember { mutableStateOf(false) }
+    TopAppBar(
+        colors = TopAppBarDefaults.smallTopAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            titleContentColor = MaterialTheme.colorScheme.primary,
+        ),
+        navigationIcon = {
+            IconButton(onClick = {
+                viewModelLogin.set_Email("")
+                viewModelLogin.set_Password("")
+                viewModelLogin.restablecerContadorIntentos()
+                viewModel.set_banderaIniciar()
+            }) {
+                Icon(imageVector = Icons.Filled.ArrowBack,
+                    contentDescription = "Ir hacia atras",
+
+                    )
+            }
+        },
+        title = { Text(text = viewModelLogin.email, fontSize = 16.sp) },
+        actions = {
+
+            IconButton(onClick = {
+                viewModel.getListaSelecionados().clear()
+                viewModel.getLista().forEach {
+
+                    if(it.selecionado){
+                        viewModel.getListaSelecionados().add(it)
+                    }
+                }
+                showDialog=true
+
+            }) {
+                Icon(imageVector = Icons.Filled.Android,
+                    contentDescription = "Ir hacia atras",
+
+                    )
+            }
+            if(showDialog){
+                MyDialogMostrarItems(
+                    viewModel,
+                    onDismiss = { showDialog = false },
+                    onAccept = {  showDialog = false },
+
+
+
+
+                )
+            }
+
+            Checkbox(checked = viewModel.isCheckedScafold,
+                onCheckedChange = {
+                    viewModel.set_isCheckedScafold(it)
+
+                    viewModel.getLista().forEach { item ->
+                        item.selecionado = viewModel.isCheckedScafold
+                        viewModel.set_Objeto(
+                            ItemSer(
+                                item.nombre,
+                                item.descr,
+                                item.selecionado,
+
+                                )
+                        )
+
+
+                        viewModel.getListaAux().add(viewModel.objeto)
+
+                    }
+
+                    viewModel.escribirFichero(context,false)
+                    navController.navigate(route = Screens.Menu.route)
+
+                })
+        }
+    )
+}
+
+@Composable
+fun MyDialogMostrarItems(viewmodel: ItemViewModel,onDismiss: () -> Unit, onAccept: () -> Unit) {
+    val colorRojo=Color(232, 18, 36)
+    val colorAzul=Color(10, 48, 100)
+    val colorAmarillo = Color(235, 203, 73)
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(text = "Listado de Items selecionados")
+        },
+        text = {
+
+            LazyColumn(){
+                    items(viewmodel.getListaSelecionados()){
+                        Column(modifier=Modifier.fillMaxSize()){
+                            Text("Nombre: ${it.nombre}")
+                            Text("Descripcion: ${it.descr}")
+                            Spacer(modifier = Modifier.size(10.dp))
+                        }
+
+                    }
+            }
+
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    onAccept()
+                },
+                colors = ButtonDefaults.buttonColors(containerColor =colorRojo),
+                shape = RectangleShape
+
+            ) {
+                Text("Aceptar")
+            }
+        },
+
+    )
+
+
+}
+
+
+@Composable
+fun MyBottomBar(viewModel: ItemViewModel) {
+    BottomAppBar(
+        containerColor = MaterialTheme.colorScheme.primaryContainer,
+        contentColor = MaterialTheme.colorScheme.primary,
+    ) {
+        Text(text = "Numero de elementos: ")
+        Text(text = viewModel.getLista().size.toString())
+    }
+}
+
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -176,9 +263,6 @@ fun AdministrarItems(navController: NavController, viewModel: ItemViewModel) {
         viewModel.guardarListaEnFichero(context)
         viewModel.set_banderaFichero(false)
     }
-
-
-
 
     Column(
 
@@ -253,21 +337,20 @@ fun MostrarItem(
         verticalAlignment = Alignment.CenterVertically
     ){
         Column(){
-            Text(text = "Nombre-> "+objeto.nombre)
-            Text(text = "Descr->"+objeto.descr)
+            Text(text = "Nombre: "+objeto.nombre)
+            Text(text = "Descr: "+objeto.descr)
             Checkbox(checked = isChecked, onCheckedChange = {
                 isChecked=it
                 objeto.selecionado=isChecked
+                viewModel.set_IndiceLista(viewModel.getLista().indexOf(objeto))
                 if (isChecked) {
-                    viewModel.set_Objeto(ItemSer(objeto.nombre,objeto.descr,true))
-                    viewModel.getLista().remove(objeto)
-                    viewModel.getLista().add(viewModel.objeto)
+
+                    viewModel.getLista()[viewModel.indiceLista].selecionado=true
                     viewModel.escribirFichero(context, true)
 
                 } else {
-                    viewModel.set_Objeto(ItemSer(objeto.nombre,objeto.descr,false))
-                    viewModel.getLista().remove(objeto)
-                    viewModel.getLista().add(viewModel.objeto)
+
+                    viewModel.getLista()[viewModel.indiceLista].selecionado=false
                     viewModel.escribirFichero(context, true)
 
                 }
