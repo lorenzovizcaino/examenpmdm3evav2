@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.AlertDialog
 
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
@@ -63,6 +64,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.antonio.examenpmdm3evav2.R
 import com.antonio.examenpmdm3evav2.ui.model.ItemSer
+import com.antonio.examenpmdm3evav2.ui.model.Login
 import com.antonio.examenpmdm3evav2.ui.navigation.Screens
 import com.antonio.examenpmdm3evav2.ui.viewmodel.ItemViewModel
 import com.antonio.examenpmdm3evav2.ui.viewmodel.LoginViewModel
@@ -241,6 +243,7 @@ fun MostrarItem(
 ) {
     val context = LocalContext.current
     var isChecked by remember { mutableStateOf(objeto.selecionado) }
+    var showDialog by remember { mutableStateOf(false) }
 
     Row(
         modifier = Modifier
@@ -276,24 +279,37 @@ fun MostrarItem(
             Image(painter = painterResource(id = android.R.drawable.ic_delete),
                 contentDescription = "",
                 modifier = Modifier.clickable {
+                    showDialog=true
 
-                    viewModel.getLista().remove(objeto)
 
-                    viewModel.escribirFichero(context, true)
                 })
         }
+        if(showDialog){
+            MyDialogBorrarItem(
+                onDismiss = { showDialog = false },
+                onAccept = {
+
+                    viewModel.getLista().remove(objeto)
+                    viewModel.escribirFichero(context, true)
+
+
+                }
+            )
+
+
+
+
+
+        }
+
         Column(){
             Image(painter = painterResource(id = android.R.drawable.ic_menu_edit),
                 contentDescription = "",
                 modifier = Modifier.clickable {
 
                     Toast.makeText(context, "Modifica Datos Contacto seleccionado.", Toast.LENGTH_SHORT).show()
-
-
                     viewModel.getLista().remove(objeto)
-
                     viewModel.escribirFichero(context, true)
-
                     editNombre(objeto.nombre)
                     editDescr(objeto.descr)
 
@@ -307,6 +323,46 @@ fun MostrarItem(
             .width(4.dp), color = Color.Black
     )
 
+}
+
+
+@Composable
+fun MyDialogBorrarItem(onDismiss: () -> Unit, onAccept: () -> Unit) {
+    val colorRojo=Color(232, 18, 36)
+    val colorAzul=Color(10, 48, 100)
+    val colorAmarillo = Color(235, 203, 73)
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(text = "Borrar Item")
+        },
+        text = {
+            Text(text = "¿Estás seguro de que deseas Borrar este Item?")
+        },
+        confirmButton = {
+            Button(
+                onClick = {
+                    onAccept()
+                },
+                colors = ButtonDefaults.buttonColors(containerColor =colorRojo),
+                shape = RectangleShape
+
+            ) {
+                Text("Aceptar")
+            }
+        },
+        dismissButton = {
+            Button(
+                onClick = {
+                    onDismiss()
+                },
+                colors = ButtonDefaults.buttonColors(containerColor =colorAzul),
+                shape = RectangleShape
+            ) {
+                Text("Cancelar")
+            }
+        }
+    )
 }
 
 //Empieza aqui  los composables del login
@@ -330,7 +386,8 @@ fun MenuLogin(navController: NavController, viewModel: LoginViewModel, viewModel
         Footer(
             Modifier
                 .align(Alignment.BottomCenter)
-                .fillMaxWidth()
+                .fillMaxWidth(),
+            navController
         )
     }
 
@@ -338,19 +395,21 @@ fun MenuLogin(navController: NavController, viewModel: LoginViewModel, viewModel
 
 
 @Composable
-fun Footer(modifier: Modifier) {
+fun Footer(modifier: Modifier, navController: NavController) {
     Column(modifier = modifier) {
         Divider(Modifier.background(Color(0xFFF9F9F9)))
         Spacer(modifier = Modifier.size(16.dp))
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-            Text(text = "¿No tienes una cuenta?", color = Color(0xFFB5B5B5), fontSize = 14.sp)
-            Spacer(modifier = Modifier.size(25.dp))
+//            Text(text = "¿No tienes una cuenta?", color = Color(0xFFB5B5B5), fontSize = 14.sp)
+//            Spacer(modifier = Modifier.size(25.dp))
             Text(
-                text = "Sign Up.",
+                text = "Ver emails introducidos",
                 color = Color(0xFF4EA8E9),
                 fontWeight = FontWeight.Bold,
                 fontSize = 14.sp,
-                modifier = Modifier.clickable { })
+                modifier = Modifier.clickable {
+                    navController.navigate(Screens.ListaLogin.route)
+                })
 
         }
         Spacer(modifier = Modifier.size(25.dp))
@@ -409,6 +468,10 @@ fun LoginButton(
     Button(
         onClick = {
             if(viewModel.contadorIntentos>0){
+
+                viewModel.getListaLoginIntroducidos().add(Login(viewModel.email,viewModel.password))
+                viewModel.grabarCambiosFich(context)
+
                 viewModel.set_ContadorIntentos()
                 viewModel.getListaLogin().forEach{ item ->
                     if(item.email.equals(viewModel.email) && item.password.equals(viewModel.password)){
@@ -418,6 +481,7 @@ fun LoginButton(
 
                 }
                 if(viewModel.usuarioCorrecto){
+
                     viewModel.set_UsuarioCorrecto(false)
                     viewModelItem.set_banderaIniciar()
 

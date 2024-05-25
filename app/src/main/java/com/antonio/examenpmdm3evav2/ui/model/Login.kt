@@ -14,6 +14,14 @@ var listaLogin= mutableListOf<Login>(
 
 )
 
+var listaLoginIntroducidos= mutableListOf<Login>(
+
+)
+
 fun getListaLoginclass(): MutableList<Login> {
     return listaLogin
+}
+
+fun getListaLoginIntroducidosclass(): MutableList<Login> {
+    return listaLoginIntroducidos
 }
