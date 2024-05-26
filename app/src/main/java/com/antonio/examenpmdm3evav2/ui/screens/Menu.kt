@@ -23,6 +23,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Android
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.AlertDialog
@@ -74,7 +76,7 @@ import com.antonio.examenpmdm3evav2.ui.viewmodel.LoginViewModel
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ScaffoldScreenAppFich(
+fun Contenido(
     navController: NavController,
     viewModel: ItemViewModel,
     viewModelLogin: LoginViewModel
@@ -108,7 +110,7 @@ fun ScaffoldScreenAppFich(
 @Composable
 fun Menu(navController: NavController, viewModelItem: ItemViewModel, viewModelLogin: LoginViewModel) {
     if(viewModelItem.banderaIniciar){
-        ScaffoldScreenAppFich(navController,viewModelItem, viewModelLogin)
+        Contenido(navController,viewModelItem, viewModelLogin)
     }else{
         MenuLogin(navController, viewModelLogin, viewModelItem)
     }
@@ -294,7 +296,7 @@ fun AdministrarItems(navController: NavController, viewModel: ItemViewModel) {
 
             viewModel.set_nombre("")
             viewModel.set_descr("")
-        }, modifier = Modifier.padding(5.dp)) {
+        }, modifier = Modifier.fillMaxWidth().padding(5.dp)) {
             Text(text = "Agregar", /*modifier = Modifier.fillMaxWidth()*/)
         }
 
@@ -339,34 +341,75 @@ fun MostrarItem(
         Column(){
             Text(text = "Nombre: "+objeto.nombre)
             Text(text = "Descr: "+objeto.descr)
-            Checkbox(checked = isChecked, onCheckedChange = {
-                isChecked=it
-                objeto.selecionado=isChecked
-                viewModel.set_IndiceLista(viewModel.getLista().indexOf(objeto))
-                if (isChecked) {
+            Row(modifier=Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween){
+                Checkbox(checked = isChecked, onCheckedChange = {
+                    isChecked=it
+                    objeto.selecionado=isChecked
+                    viewModel.set_IndiceLista(viewModel.getLista().indexOf(objeto))
+                    if (isChecked) {
 
-                    viewModel.getLista()[viewModel.indiceLista].selecionado=true
-                    viewModel.escribirFichero(context, true)
+                        viewModel.getLista()[viewModel.indiceLista].selecionado=true
+                        viewModel.escribirFichero(context, true)
 
-                } else {
+                    } else {
 
-                    viewModel.getLista()[viewModel.indiceLista].selecionado=false
-                    viewModel.escribirFichero(context, true)
+                        viewModel.getLista()[viewModel.indiceLista].selecionado=false
+                        viewModel.escribirFichero(context, true)
 
-                }
-
-
-            })
-        }
-        Column() {
-            Image(painter = painterResource(id = android.R.drawable.ic_delete),
-                contentDescription = "",
-                modifier = Modifier.clickable {
-                    showDialog=true
+                    }
 
 
                 })
+
+                IconButton(onClick = {
+                    showDialog=true
+
+                }, modifier = Modifier.padding(start = 10.dp)) {
+                    Icon(
+                        imageVector = Icons.Filled.Delete,
+                        contentDescription = "Borrar",
+                        tint = Color.Red,
+
+
+                        )
+                }
+
+                IconButton(
+                    onClick = {
+                        Toast.makeText(context, "Modifica Datos Contacto seleccionado.", Toast.LENGTH_SHORT).show()
+                        viewModel.getLista().remove(objeto)
+                        viewModel.escribirFichero(context, true)
+                        editNombre(objeto.nombre)
+                        editDescr(objeto.descr)
+
+                    },
+                    modifier = Modifier.padding(start = 10.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Edit,
+                        contentDescription = "Editar",
+                        tint = Color.Black,
+
+                        )
+                }
+
+
+
+
+
+            }
+
         }
+
+
+
+
+
+
+
+
+
+
         if(showDialog){
             MyDialogBorrarItem(
                 onDismiss = { showDialog = false },
@@ -374,6 +417,7 @@ fun MostrarItem(
 
                     viewModel.getLista().remove(objeto)
                     viewModel.escribirFichero(context, true)
+                    showDialog = false
 
 
                 }
@@ -385,19 +429,17 @@ fun MostrarItem(
 
         }
 
-        Column(){
-            Image(painter = painterResource(id = android.R.drawable.ic_menu_edit),
-                contentDescription = "",
-                modifier = Modifier.clickable {
 
-                    Toast.makeText(context, "Modifica Datos Contacto seleccionado.", Toast.LENGTH_SHORT).show()
-                    viewModel.getLista().remove(objeto)
-                    viewModel.escribirFichero(context, true)
-                    editNombre(objeto.nombre)
-                    editDescr(objeto.descr)
 
-                })
-        }
+
+
+
+
+
+
+
+
+
 
     }
     Divider(

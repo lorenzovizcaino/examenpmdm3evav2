@@ -158,6 +158,7 @@ class ItemViewModel:ViewModel(){
             itemsSer.clear()
             itemsSer.addAll(itemsSerAux)
             itemsSerAux.clear()
+
         }
         itemsSer.forEach(){ item->
 
