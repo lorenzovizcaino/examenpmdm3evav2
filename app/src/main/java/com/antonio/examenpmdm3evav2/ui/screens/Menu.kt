@@ -525,8 +525,7 @@ fun Footer(modifier: Modifier, navController: NavController) {
         Divider(Modifier.background(Color(0xFFF9F9F9)))
         Spacer(modifier = Modifier.size(16.dp))
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-//            Text(text = "¿No tienes una cuenta?", color = Color(0xFFB5B5B5), fontSize = 14.sp)
-//            Spacer(modifier = Modifier.size(25.dp))
+
             Text(
                 text = "Ver emails introducidos",
                 color = Color(0xFF4EA8E9),
@@ -717,9 +716,9 @@ fun Email(email: String, onTextChanged: (String) -> Unit, modifier: Modifier) {
 @Composable
 fun ImageLogo(modifier: Modifier) {
     Image(
-        painter = painterResource(id = R.drawable.logoinformaticateis),
+        painter = painterResource(id = R.drawable.examen),
         contentDescription = "logo",
-        modifier = modifier.size(250.dp)
+        modifier = modifier.size(350.dp)
     )
 }
 
